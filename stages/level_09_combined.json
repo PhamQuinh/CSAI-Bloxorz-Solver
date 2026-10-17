@@ -1,0 +1,16 @@
+{
+    "name": "Stage 09 - Long Bridge Split",
+    "grid": [
+        "....   .   ....",
+        ".S..   .   ..T.",
+        "...............",
+        "      .H.      ",
+        "      ...      "
+    ],
+    "passcode": "074355",
+    "bridges": [],
+    "switches": [],
+    "teleports": [
+        [1, 13, 1, 2, 1, 12, 1]
+    ]
+}

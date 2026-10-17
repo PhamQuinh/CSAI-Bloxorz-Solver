@@ -1,0 +1,43 @@
+# Ground Truth Optimal Solutions for Bloxorz Stages 01 to 10
+# Source: tkoz0/bloxorz-solver (agrees with official Coolmath least moves records)
+# Note: Keypress legend: U (Up), D (Down), L (Left), R (Right), _ (Switch cube when split)
+
+Solving Stage 01 (passcode = 780464)
+length = 7
+RDDRRDR
+
+Solving Stage 02 (passcode = 290299)
+length = 17
+URDRRRRUUDRDRRURU
+
+Solving Stage 03 (passcode = 918660)
+length = 19
+RURRRULDRUURRRDDDRU
+
+Solving Stage 04 (passcode = 520967)
+length = 28
+ULURRURRRRRRDRDDDDDRULLLLLLD
+
+Solving Stage 05 (passcode = 028431)
+length = 33
+LLLRLLLLLDRDDRRRRDRRRRLLLLDLLLLLL
+
+Solving Stage 06 (passcode = 524383)
+length = 35
+RRRDDRDDRDRULLLUULUUURRDRRULDDRRDDR
+
+Solving Stage 07 (passcode = 189493)
+length = 44
+DLURRRRRDRLULLLLLDRDRDRRRUURDLURUURRRDRDRDLU
+
+Solving Stage 08 (passcode = 499707)
+length = 10
+RRDDDD_UURR
+
+Solving Stage 09 (passcode = 074355)
+length = 24
+RDRRRRRRUR_D_D_RRRRRU_LLLLLD
+
+Solving Stage 10 (passcode = 300590)
+length = 57
+RR_DDRRDRDDDDD_LDDDRDDDL_LL_D_L_D_LULLLDURRRDR_LRURUUUULLULDLLLLL
