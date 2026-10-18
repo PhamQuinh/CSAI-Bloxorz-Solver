@@ -16,6 +16,8 @@ from bloxorz.solvers.bfs import BFSSolver
 from bloxorz.solvers.dfs import DFSSolver
 from bloxorz.solvers.ucs import UCSSolver
 from bloxorz.solvers.costs import step_cost, MIN_STEP_COST
+from bloxorz.domain.actions import Action
+from bloxorz.solvers.costs import COST_NORMAL, COST_FRAGILE
 
 STAGE_FILES = sorted(Path(STAGES_DIR).glob("*.json"))
 
@@ -94,6 +96,26 @@ class TestDFSUCS(unittest.TestCase):
             res = cls(stage).solve()
             self.assertFalse(res.found)
             self.assertEqual(res.actions, [])
+            
+    def _tiny_stage(self):
+        data = {"name": "tiny", "grid": ["S.-.H"], "bridges": [],
+                "switches": [], "teleports": []}
+        with tempfile.TemporaryDirectory() as d:
+            f = Path(d) / "tiny.json"
+            f.write_text(json.dumps(data), encoding="utf-8")
+            return load_stage(f)
+
+    def test_fragile_cost_applies_to_whole_block(self):
+        stage = self._tiny_stage()
+        cur = State(r1=0, c1=0, r2=0, c2=0, bridges=(), active_cube=-1)
+        nxt = State(r1=0, c1=1, r2=0, c2=2, bridges=(), active_cube=-1)  # lying on '-'
+        self.assertEqual(step_cost(stage, cur, Action.RIGHT, nxt), COST_FRAGILE)
+
+    def test_fragile_cost_not_applied_to_split_cube(self):
+        stage = self._tiny_stage()
+        cur = State(r1=0, c1=1, r2=0, c2=4, bridges=(), active_cube=0)
+        nxt = State(r1=0, c1=2, r2=0, c2=4, bridges=(), active_cube=0)  # cube on '-'
+        self.assertEqual(step_cost(stage, cur, Action.RIGHT, nxt), COST_NORMAL)
 
 
 if __name__ == "__main__":
