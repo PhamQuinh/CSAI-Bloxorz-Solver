@@ -1,4 +1,4 @@
-"""Shared non-uniform cost model for UCS (and for A* admissibility proofs)."""
+"""Shared non-uniform cost model for UCS and A*."""
 from bloxorz.domain.state import State
 from bloxorz.domain.actions import Action
 from bloxorz.domain.models import Stage, TileType
