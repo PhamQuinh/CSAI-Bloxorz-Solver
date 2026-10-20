@@ -128,11 +128,47 @@ Khối sắt bắt buộc phải **đứng thẳng** trên ô đích `'H'`. Mọ
 
 ## 7. HÀM HEURISTIC CHO A* SEARCH ($h(s)$)
 
-### 7.1 Heuristic 1: Manhattan Distance chia đôi ($h_1$)
-$$h_1(s) = \frac{|\bar{r} - r_{goal}| + |\bar{c} - c_{goal}|}{2}$$
-- **Chứng minh Admissible:** Vì một lần lật khối di chuyển khối đi tối đa 2 ô trên lưới, nên số bước đi tối thiểu cần thiết luôn $\ge \frac{\text{Khoảng cách}}{2}$. Do đó $h_1(s) \le h^*(s)$ với mọi $s$.
-- **Chứng minh Consistent:** Khi di chuyển một bước từ $s \rightarrow s'$, khoảng cách Manhattan thay đổi tối đa 2 đơn vị $\Rightarrow h_1(s) - h_1(s') \le \frac{2}{2} = 1 \le c(s, a, s')$.
+A* dùng $h_1$. $g$ là tổng `step_cost` trong `costs.py`: mỗi bước tốn ít nhất $c_{\min} = 1$ (bước rẻ nhất), bước lăn thường tốn 2, ô fragile tốn 4. $h_1(s)$ không vượt chi phí còn lại tối ưu của chính hàm này.
 
-### 7.2 Heuristic 2: Manhattan chia đôi kèm Phạt tư thế ($h_2$)
-$$h_2(s) = h_1(s) + \begin{cases} 0 & \text{nếu } s \text{ is Standing} \\ 1 & \text{nếu } s \text{ is Lying / Split} \end{cases}$$
-- **Lập luận:** Để vào được lỗ đích, khối bắt buộc phải đứng thẳng. Nếu khối đang nằm, tối thiểu cần thêm 1 bước lật để dựng đứng khối $\Rightarrow h_2(s)$ vẫn là cận dưới hợp lệ (Admissible) và chặt hơn $h_1(s)$.
+Ký hiệu $\mathrm{roll}(s, p) = c_{\min} \cdot \max(d(s, p) / 2,\ m(s))$:
+- $d(s, p)$ là khoảng cách Manhattan từ tâm khối tới ô $p$.
+- $m(s) = 0$ nếu khối còn nguyên; nếu đang tách và hai khối con cách nhau $k$ ô thì $m(s) = \max(0, k - 1)$.
+
+Một nước không đứng lên ô tách chỉ kéo tâm tối đa 1.5 ô, nên chia 2 là cận dưới số nước. Muốn đứng vào lỗ hoặc đứng lên ô tách thì khối phải nguyên, nên cần ít nhất $m(s)$ nước. Hai việc đó dùng chung các nước đã đi, nên lấy $\max$, không cộng. Nhân $c_{\min}$ ra cận dưới chi phí của đoạn đường không teleport.
+
+### 7.1 Heuristic 1 ($h_1$) — có tính teleport
+
+Với mỗi ô tách $j$, gọi $L_j$ là vị trí hai khối con ngay sau khi đứng lên $j$ (đã ghép lại nếu hai ô đích kề nhau). $H(L_j)$ là cận dưới chi phí từ $L_j$ tới lỗ, tính bằng đường đi ngắn nhất trên đồ thị cổng:
+- cạnh $L_j \to$ lỗ nặng $\mathrm{roll}(L_j, \text{lỗ})$;
+- cạnh $L_j \to L_k$ nặng $\mathrm{roll}(L_j, \text{ô } k)$. Trọng số này đã gồm nước đứng lên ô $k$, và nước đó kết thúc tại $L_k$.
+
+$$h_1(s) = \min\Big(\mathrm{roll}(s, \text{lỗ}),\ \min_j \mathrm{roll}(s, \text{ô } j) + H(L_j)\Big)$$
+
+**Vì sao $h_1(s)$ không lớn hơn chi phí còn lại tối ưu.** Lấy một đường tối ưu và cắt tại các lần đứng lên ô tách.
+
+- Đường không dùng ô tách: mọi nước kéo tâm tối đa 1.5 ô, và khối tách phải ghép trước khi đứng vào lỗ. Chi phí $\ge \mathrm{roll}(s, \text{lỗ})$.
+- Đường có teleport, cổng đầu tiên là $j$: đoạn trước $L_j$ không teleport nên tốn ít nhất $\mathrm{roll}(s, \text{ô } j)$. Phần sau xuất phát từ $L_j$. Quy nạp theo số lần teleport còn lại, phần đó tốn ít nhất $H(L_j)$. Mỗi cạnh teleport nặng ít nhất $c_{\min} > 0$ nên đường tối ưu không lặp vô hạn.
+
+$h_1$ lấy min của các trường hợp này nên không vượt chi phí của trường hợp nào. Tường và cầu chỉ làm đường dài thêm, nên bỏ chúng khỏi cận dưới vẫn an toàn.
+
+Một nước teleport có thể làm $h_1$ giảm nhiều hơn chi phí của chính nước đó, nên $h_1$ không được xem là consistent trên map có ô tách. A* vẫn lấy được nghiệm tối ưu vì khi tìm thấy $g$ nhỏ hơn thì node được mở lại; lần đầu pop trạng thái lỗ, $g$ là tối ưu.
+
+### 7.2 Heuristic 2 ($h_2$) — không dùng cho A*
+
+$$h_2(s) = h_1(s) + \begin{cases} 0 & \text{nếu khối đang đứng nguyên} \\ c_{\min} & \text{nếu khối đang nằm hoặc đang tách} \end{cases}$$
+
+Nước dựng khối đứng lên lỗ đã nằm một phần trong $h_1$. Nếu cộng thêm $c_{\min}$ trên một cạnh chỉ tốn $c_{\min}$, $h_2$ có thể lớn hơn chi phí còn lại. A* dùng $h_1$.
+
+### 7.3 Map hai teleport dùng để kiểm tra
+
+Một hàng 28 ô, cột đánh số từ 0:
+
+```text
+...T..S..T..............H...
+```
+
+- `S` ở cột 6, `H` ở cột 24.
+- `T` cột 3 thả hai khối con vào cột 20 và 23.
+- `T` cột 9 thả hai khối con vào cột 18 và 20.
+
+Đường rẻ: LEFT, LEFT, RIGHT, RIGHT, RIGHT, tổng chi phí 9. Đường kia: sáu lần RIGHT, tổng chi phí 11. Heuristic chỉ lấy $d/2$ trả chi phí 11, vì sau nước LEFT đầu tâm còn cách lỗ 19.5 nên ước lượng 9.75 trong khi chi phí còn lại chỉ là 7. $h_1$ hiện tại và A* với $h = 0$ đều cho chi phí 9.

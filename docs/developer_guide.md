@@ -76,7 +76,7 @@ class DFSSolver(BaseSolver):
 ### 4.1 Cài đặt A* Search (`astar.py`)
 - Dùng Priority Queue với độ ưu tiên $f(n) = g(n) + h(n)$.
 - $g(n)$: Chi phí tích lũy từ gốc đến node hiện tại.
-- $h(n)$: Giá trị ước lượng từ `heuristics.py` (`manhattan_half` hoặc `manhattan_half_with_orientation_penalty`).
+- $h(n)$: `manhattan_half` trong `heuristics.py`. Hàm này là cận dưới của `step_cost`, kể cả khi đường đi đứng lên ô tách. `manhattan_half_with_orientation_penalty` cộng thêm một bước khi khối chưa đứng; lượng cộng thêm có thể vượt chi phí còn lại, nên không đưa vào A*.
 - Duy trì từ điển `cost_so_far: Dict[State, float]` để cập nhật đường đi tốt hơn nếu tìm thấy $g(n)$ nhỏ hơn.
 
 ---

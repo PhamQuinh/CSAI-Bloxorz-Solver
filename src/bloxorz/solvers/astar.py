@@ -1,8 +1,10 @@
 """A* search for Bloxorz.
 
 Implemented by TV3. g(n) is the sum of step_cost from costs.py, the same
-non-uniform cost UCS uses, so A* returns a minimum-cost path.
-f(n) = g(n) + h(n). The default heuristic is manhattan_half.
+non-uniform cost UCS uses. f(n) = g(n) + h(n). The default heuristic is
+manhattan_half, a lower bound on the remaining cost of that function,
+including a path that teleports through a split switch. A cheaper g
+reopens the node, so the first time the goal is popped its g is optimal.
 """
 import heapq
 import itertools
@@ -73,8 +75,10 @@ class AStarSolver(BaseSolver):
             if g > best_g.get(current, float("inf")):
                 continue
 
-            # Pop order is by f. With an admissible heuristic the first
-            # time the goal is popped, g is optimal.
+            # Pop order is by f. manhattan_half never exceeds the optimal
+            # remaining cost, and a cheaper g reopens the node, so this g
+            # is optimal. The heuristic need not be consistent: a teleport
+            # can cut h by more than the edge that caused it.
             if is_goal_state(current, stage):
                 goal = current
                 break

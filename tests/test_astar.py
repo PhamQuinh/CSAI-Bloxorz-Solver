@@ -16,10 +16,12 @@ from bloxorz.engine.stage_loader import load_stage
 from bloxorz.engine.transitions import get_valid_actions, transition
 from bloxorz.metrics.measurement import measure_performance
 from bloxorz.solvers.astar import AStarSolver
-from bloxorz.solvers.costs import COST_NORMAL, step_cost
+from bloxorz.solvers.costs import COST_NORMAL, MIN_STEP_COST, step_cost
 from bloxorz.solvers.heuristics import (
+    center_manhattan,
     manhattan_half,
     manhattan_half_with_orientation_penalty,
+    steps_to_merge,
 )
 from bloxorz.solvers.ucs import UCSSolver
 
@@ -171,6 +173,64 @@ class TestAStar(unittest.TestCase):
         self.assertTrue(is_goal_state(stood, stage))
         self.assertEqual(step_cost(stage, lying, Action.RIGHT, stood), COST_NORMAL)
         self.assertLessEqual(manhattan_half(lying, stage), COST_NORMAL)
+
+    def test_two_teleports_match_zero_heuristic_cost(self):
+        """Distance-only h returns 11; the portal lower bound matches h=0 at cost 9.
+
+        One row, columns 0..27. Start S at column 6, hole H at column 24.
+        T at column 3 sends the two cubes to columns 20 and 23 (cost 9).
+        T at column 9 sends them to columns 18 and 20 (cost 11).
+        """
+        row = ["."] * 28
+        row[3] = "T"
+        row[6] = "S"
+        row[9] = "T"
+        row[24] = "H"
+        stage = Stage(
+            name="two-teleport",
+            grid=["".join(row)],
+            rows=1,
+            cols=28,
+            start_pos=(0, 6),
+            goal_pos=(0, 24),
+            bridges=[],
+            initial_bridges=(),
+            switches={},
+            teleports={
+                (0, 3): (0, 20, 0, 23, 0),
+                (0, 9): (0, 18, 0, 20, 0),
+            },
+        )
+        blind = AStarSolver(stage, heuristic=lambda state, _stage: 0.0).solve()
+        guided = AStarSolver(stage).solve()
+        blind_cost, blind_final = _replay(stage, blind.actions)
+        guided_cost, guided_final = _replay(stage, guided.actions)
+        self.assertEqual(blind_cost, 9)
+        self.assertEqual(guided_cost, 9)
+        self.assertTrue(is_goal_state(blind_final, stage))
+        self.assertTrue(is_goal_state(guided_final, stage))
+
+        state = _initial(stage)
+        remaining = blind_cost
+        saw_portal_bound = False
+        for act in blind.actions:
+            estimate = manhattan_half(state, stage)
+            self.assertLessEqual(estimate, remaining + 1e-9)
+            distance_only = MIN_STEP_COST * max(
+                center_manhattan(state, stage.goal_pos) / 2.0,
+                float(steps_to_merge(state)),
+            )
+            # After the first LEFT the block is farther from the hole than
+            # when it started, so distance/2 exceeds the true remaining cost.
+            if distance_only > remaining + 1e-9:
+                self.assertLess(estimate, distance_only)
+                saw_portal_bound = True
+            nxt = transition(state, act, stage)
+            remaining -= step_cost(stage, state, act, nxt)
+            state = nxt
+        self.assertTrue(saw_portal_bound)
+        self.assertEqual(remaining, 0)
+        self.assertEqual(manhattan_half(state, stage), 0.0)
 
 
 class TestMeasurePerformance(unittest.TestCase):
