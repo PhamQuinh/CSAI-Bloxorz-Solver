@@ -4,6 +4,8 @@ from bloxorz.domain.models import Stage, TileType
 
 def is_goal_state(state: State, stage: Stage) -> bool:
     """Return True if block is standing upright on the goal hole."""
+    if state.is_split:
+        return False
     if state.is_standing:
         return (state.r1, state.c1) == stage.goal_pos
     return False

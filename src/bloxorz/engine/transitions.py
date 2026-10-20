@@ -5,7 +5,7 @@ from typing import Optional, List, Tuple
 from bloxorz.domain.state import State
 from bloxorz.domain.actions import Action
 from bloxorz.domain.models import Stage
-from bloxorz.engine.validation import is_valid_position
+from bloxorz.engine.validation import is_valid_position, is_valid_cube_position
 
 def get_valid_actions(state: State, stage: Stage) -> List[Action]:
     """Return all valid actions from current state."""
@@ -104,41 +104,68 @@ def transition(state: State, action: Action, stage: Stage) -> Optional[State]:
         active_cube = new_active
 
     # Check validity of destination
-    if not is_valid_position(nr1, nc1, nr2, nc2, tuple(bridges), stage):
+    is_split_state = (active_cube != -1)
+    if not is_valid_position(nr1, nc1, nr2, nc2, tuple(bridges), stage, is_split=is_split_state):
         return None
 
     # Handle switches and triggers
     new_bridges = bridges[:]
     bridge_actions = []
 
-    cell1 = stage.grid[nr1][nc1]
-    cell2 = stage.grid[nr2][nc2]
+    if not state.is_split:
+        # Block was a whole 1x1x2 block
+        if nr1 == nr2 and nc1 == nc2:
+            # Block lands Standing
+            stand_pos = (nr1, nc1)
 
-    if nr1 == nr2 and nc1 == nc2:
-        # Block is standing
-        if (nr1, nc1) in stage.teleports and active_cube == -1:
-            # Trigger teleport / split
-            tp = stage.teleports[(nr1, nc1)]
-            tr1, tc1, tr2, tc2, t_active = tp
-            # Ensure row-major canonical order
-            if tr1 < tr2 or (tr1 == tr2 and tc1 <= tc2):
-                nr1, nc1, nr2, nc2 = tr1, tc1, tr2, tc2
-                active_cube = t_active
-            else:
-                nr1, nc1, nr2, nc2 = tr2, tc2, tr1, tc1
-                active_cube = 1 - t_active
+            # 1. Source switch trigger (Heavy 'X', Soft 'O', or Switch on 'T')
+            if stand_pos in stage.switches:
+                bridge_actions.extend(stage.switches[stand_pos])
 
-        if (nr1, nc1) in stage.switches:
-            bridge_actions.extend(stage.switches[(nr1, nc1)])
+            # Apply source switch triggers before potential teleport
+            for b_idx, act in bridge_actions:
+                if act == "on":
+                    new_bridges[b_idx] = True
+                elif act == "off":
+                    new_bridges[b_idx] = False
+                elif act == "swap":
+                    new_bridges[b_idx] = not new_bridges[b_idx]
+            bridge_actions.clear()
+
+            # 2. Teleport / Split switch trigger
+            if stand_pos in stage.teleports:
+                tp = stage.teleports[stand_pos]
+                tr1, tc1, tr2, tc2, t_active = tp
+                # Canonical ordering
+                if tr1 < tr2 or (tr1 == tr2 and tc1 <= tc2):
+                    nr1, nc1, nr2, nc2 = tr1, tc1, tr2, tc2
+                    active_cube = t_active
+                else:
+                    nr1, nc1, nr2, nc2 = tr2, tc2, tr1, tc1
+                    active_cube = 1 - t_active
+
+                # Immediately validate both teleport destinations!
+                if not is_valid_cube_position(nr1, nc1, tuple(new_bridges), stage) or \
+                   not is_valid_cube_position(nr2, nc2, tuple(new_bridges), stage):
+                    return None  # Teleported into void, out-of-bounds, or closed bridge
+
+                # Symmetrically process Soft switches 'O' at both destination tiles
+                for dest_r, dest_c in [(nr1, nc1), (nr2, nc2)]:
+                    if (dest_r, dest_c) in stage.switches and stage.grid[dest_r][dest_c] == 'O':
+                        bridge_actions.extend(stage.switches[(dest_r, dest_c)])
+        else:
+            # Block lands Lying: only Soft switches 'O' trigger if newly stepped on
+            if (nr1, nc1) in stage.switches and stage.grid[nr1][nc1] == 'O' and (nr1, nc1) not in [(r1, c1), (r2, c2)]:
+                bridge_actions.extend(stage.switches[(nr1, nc1)])
+            if (nr2, nc2) in stage.switches and stage.grid[nr2][nc2] == 'O' and (nr2, nc2) not in [(r1, c1), (r2, c2)]:
+                bridge_actions.extend(stage.switches[(nr2, nc2)])
     else:
-        # Block is lying or split
-        # Soft switches 'O' trigger if newly stepped on
-        if (nr1, nc1) in stage.switches and cell1 == 'O' and (nr1, nc1) not in [(r1, c1), (r2, c2)]:
-            bridge_actions.extend(stage.switches[(nr1, nc1)])
-        if (nr2, nc2) in stage.switches and cell2 == 'O' and (nr2, nc2) not in [(r1, c1), (r2, c2)]:
-            bridge_actions.extend(stage.switches[(nr2, nc2)])
+        # Block was split: only the moved cube can trigger a Soft switch 'O'
+        moved_pos = (mr1, mc1) if state.active_cube == 0 else (mr2, mc2)
+        if moved_pos in stage.switches and stage.grid[moved_pos[0]][moved_pos[1]] == 'O':
+            bridge_actions.extend(stage.switches[moved_pos])
 
-    # Apply bridge state modifications
+    # Apply remaining bridge state modifications
     for b_idx, act in bridge_actions:
         if act == "on":
             new_bridges[b_idx] = True
@@ -151,6 +178,11 @@ def transition(state: State, action: Action, stage: Stage) -> Optional[State]:
     if active_cube != -1:
         if abs(nr1 - nr2) + abs(nc1 - nc2) == 1:
             active_cube = -1  # Merged!
+
+    # Final support check: verify cubes/block don't stand on bridge closed by switch
+    final_is_split = (active_cube != -1)
+    if not is_valid_position(nr1, nc1, nr2, nc2, tuple(new_bridges), stage, is_split=final_is_split):
+        return None
 
     return State(
         r1=nr1, c1=nc1,
