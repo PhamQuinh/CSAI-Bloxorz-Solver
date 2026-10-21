@@ -1,17 +1,17 @@
 """Uniform-Cost Search (UCS) Solver with a NON-UNIFORM cost function.
 Implemented by TV2. The cost model lives in solvers/costs.py:
-  switch / split / SWITCH_BLOCK = 1, normal roll = 2, roll onto fragile = 4.
+  switch / split / SWITCH_BLOCK = 1, whole block on fragile = 4, other roll = 2.
+Measurement scope matches BFS/A*: search + path reconstruction.
 """
 import heapq
 import itertools
-import time
-import tracemalloc
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple, Optional, List
 
 from bloxorz.domain.state import State
 from bloxorz.domain.actions import Action
 from bloxorz.domain.rules import is_goal_state
 from bloxorz.engine.transitions import transition
+from bloxorz.metrics.measurement import measure_performance
 from bloxorz.solvers.base import BaseSolver, SearchResult
 from bloxorz.solvers.costs import step_cost
 
@@ -20,9 +20,20 @@ class UCSSolver(BaseSolver):
     """UCS with a priority queue and lazy deletion of stale entries."""
 
     def solve(self) -> SearchResult:
-        tracemalloc.start()
-        start_time = time.perf_counter()
+        with measure_performance() as measured:
+            found, actions, expanded = self._search()
+            measured["expanded_nodes"] = expanded
 
+        return SearchResult(
+            found=found,
+            actions=actions,
+            solution_length=len(actions) if found else 0,
+            search_time=measured["search_time"],
+            peak_memory_mb=measured["peak_memory_mb"],
+            expanded_nodes=measured["expanded_nodes"],
+        )
+
+    def _search(self) -> Tuple[bool, List[Action], int]:
         sr, sc = self.stage.start_pos
         initial_state = State(
             r1=sr, c1=sc, r2=sr, c2=sc,
@@ -30,7 +41,7 @@ class UCSSolver(BaseSolver):
             active_cube=-1,
         )
 
-        counter = itertools.count()  # tie-breaker, tránh so sánh State
+        counter = itertools.count()  # tie-breaker: never compare State objects
         heap = [(0, next(counter), initial_state)]
         best_g: Dict[State, int] = {initial_state: 0}
         parent_map: Dict[State, Tuple[State, Action]] = {}
@@ -43,9 +54,9 @@ class UCSSolver(BaseSolver):
         while heap:
             g, _, current = heapq.heappop(heap)
             if g > best_g.get(current, float("inf")):
-                continue  # entry cũ
+                continue  # stale entry
 
-            # Kiểm tra goal khi POP => đảm bảo tối ưu
+            # Goal test at POP time -> guarantees optimality
             if is_goal_state(current, self.stage):
                 goal_state = current
                 break
@@ -63,16 +74,11 @@ class UCSSolver(BaseSolver):
                     parent_map[nxt] = (current, act)
                     heapq.heappush(heap, (new_g, next(counter), nxt))
 
-        elapsed = time.perf_counter() - start_time
-        _, peak_mem = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
-        peak_mb = peak_mem / (1024 * 1024)
-
         if goal_state is None:
-            return SearchResult(found=False, search_time=elapsed,
-                                peak_memory_mb=peak_mb, expanded_nodes=expanded_nodes)
+            return False, [], expanded_nodes
 
-        path = []
+        # Reconstruct path
+        path: List[Action] = []
         curr = goal_state
         while curr != initial_state:
             prev_state, act = parent_map[curr]
@@ -80,6 +86,4 @@ class UCSSolver(BaseSolver):
             curr = prev_state
         path.reverse()
 
-        return SearchResult(found=True, actions=path, solution_length=len(path),
-                            search_time=elapsed, peak_memory_mb=peak_mb,
-                            expanded_nodes=expanded_nodes)
+        return True, path, expanded_nodes
