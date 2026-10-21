@@ -1,0 +1,169 @@
+{
+  "status": "Thành công",
+  "started_at": "2026-10-21T14:32:52.095344+00:00",
+  "python_version": "3.14.0",
+  "python_executable": "D:\\CSAI-Bloxorz-Solver\\.venv\\Scripts\\python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "machine": "AMD64",
+  "processor": "AMD64 Family 26 Model 36 Stepping 0, AuthenticAMD",
+  "repeats": 5,
+  "algorithm_order": [
+    "BFS",
+    "DFS",
+    "UCS",
+    "A*"
+  ],
+  "stage_order": [
+    "level_01_basic.json",
+    "level_02_basic.json",
+    "level_03_basic.json",
+    "level_04_fragile.json",
+    "level_05_fragile.json",
+    "level_06_switch_bridge.json",
+    "level_07_switch_bridge.json",
+    "level_08_split_basic.json",
+    "level_09_combined.json",
+    "level_10_split_complex.json"
+  ],
+  "stages_dir": "D:\\CSAI-Bloxorz-Solver\\stages",
+  "measurement_method": "Lấy trực tiếp SearchResult do measure_performance của từng bộ giải đo: thời gian bằng perf_counter (giây); bộ nhớ đỉnh là lượng cấp phát Python được tracemalloc theo dõi, chia cho 1024**2 (MiB). Phạm vi đo gồm tìm kiếm và dựng lại đường đi. Chạy tuần tự, khởi tạo bộ giải mới cho mỗi lần chạy, không có lượt chạy khởi động.",
+  "summary_method": "Lấy trung vị thời gian và bộ nhớ của các lần chạy thành công, đã kiểm tra lời giải bằng cách phát lại hành động. Kết quả tìm thấy lời giải, số nút mở rộng, độ dài lời giải, chi phí đường đi và số lần lăn phải ổn định giữa các lần chạy; mọi khác biệt đều được báo lỗi, không lấy trung bình.",
+  "solution_length_convention": "Độ dài lời giải (số hành động) = len(actions), tính cả SWITCH_BLOCK. Số lần lăn chỉ đếm UP, DOWN, LEFT và RIGHT.",
+  "stages": [
+    {
+      "stage": "level_01_basic",
+      "sha256": "00886fdb740017d27bf278d3a1de502b6a5add7e7655c0e8ab42c153f7188b09",
+      "group": "Sàn thường",
+      "tiles": [
+        " ",
+        ".",
+        "H",
+        "S"
+      ]
+    },
+    {
+      "stage": "level_02_basic",
+      "sha256": "bad6869071578a502b7def2eaddf7989f3fe80445d23273f91bc6a932b2d71c1",
+      "group": "Công tắc và cầu",
+      "tiles": [
+        " ",
+        ".",
+        "H",
+        "O",
+        "S",
+        "X",
+        "b"
+      ]
+    },
+    {
+      "stage": "level_03_basic",
+      "sha256": "3938d4610f67aa5669798ad5ee977ab3926764ec10163b1f5f63d4656c95e9cd",
+      "group": "Sàn thường",
+      "tiles": [
+        " ",
+        ".",
+        "H",
+        "S"
+      ]
+    },
+    {
+      "stage": "level_04_fragile",
+      "sha256": "4c1e0bf8adf1dce0b8a085791574958920e7636ffbf7fd5aa58565cebb6a175b",
+      "group": "Ô dễ vỡ",
+      "tiles": [
+        " ",
+        "-",
+        ".",
+        "H",
+        "S"
+      ]
+    },
+    {
+      "stage": "level_05_fragile",
+      "sha256": "a697c1f28cffc0f6bb1f2d42e4519e8442e2de11d004b16ab76352248fd2a2e6",
+      "group": "Công tắc và cầu",
+      "tiles": [
+        " ",
+        ".",
+        "B",
+        "H",
+        "O",
+        "S"
+      ]
+    },
+    {
+      "stage": "level_06_switch_bridge",
+      "sha256": "2758f6e7ad80c1354f430a338d8240b0a4e5c5aa1dd71af57209a2798464f5e9",
+      "group": "Sàn thường",
+      "tiles": [
+        " ",
+        ".",
+        "H",
+        "S"
+      ]
+    },
+    {
+      "stage": "level_07_switch_bridge",
+      "sha256": "86a02d21647cba8e5ca1d6493627b350da89009ab4bf5885f7e8da26d9a4ced6",
+      "group": "Công tắc và cầu",
+      "tiles": [
+        " ",
+        ".",
+        "H",
+        "S",
+        "X",
+        "b"
+      ]
+    },
+    {
+      "stage": "level_08_split_basic",
+      "sha256": "681e26c7bb0892b589aabcff023420c2667059b28e27721aec9782eb7b6183cd",
+      "group": "Tách khối",
+      "tiles": [
+        " ",
+        ".",
+        "H",
+        "S",
+        "T"
+      ]
+    },
+    {
+      "stage": "level_09_combined",
+      "sha256": "52b46e1878d3a9817cc72054ac37cdcd2774bc2f4d209a2aa8b7983242b77349",
+      "group": "Tách khối",
+      "tiles": [
+        " ",
+        ".",
+        "H",
+        "S",
+        "T"
+      ]
+    },
+    {
+      "stage": "level_10_split_complex",
+      "sha256": "c9f62c9712497d7271c9eeb5b687daab17de9ca937225143d8ed7871a18223b0",
+      "group": "Tách khối kết hợp công tắc và cầu",
+      "tiles": [
+        " ",
+        ".",
+        "H",
+        "O",
+        "S",
+        "T",
+        "X",
+        "b"
+      ]
+    }
+  ],
+  "charts": [
+    "D:\\CSAI-Bloxorz-Solver\\results\\benchmark_search_time_s.png",
+    "D:\\CSAI-Bloxorz-Solver\\results\\benchmark_peak_memory_mb.png",
+    "D:\\CSAI-Bloxorz-Solver\\results\\benchmark_expanded_nodes.png",
+    "D:\\CSAI-Bloxorz-Solver\\results\\benchmark_solution_length.png"
+  ],
+  "completed_at": "2026-10-21T14:32:59.361923+00:00",
+  "raw_rows": 200,
+  "summary_rows": 40,
+  "output_language": "vi-VN",
+  "schema_version": 2
+}
