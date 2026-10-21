@@ -7,6 +7,8 @@ import json
 import tempfile
 import unittest
 
+import tracemalloc
+
 from bloxorz.config import STAGES_DIR
 from bloxorz.domain.state import State
 from bloxorz.domain.rules import is_goal_state
@@ -116,6 +118,27 @@ class TestDFSUCS(unittest.TestCase):
         cur = State(r1=0, c1=1, r2=0, c2=4, bridges=(), active_cube=0)
         nxt = State(r1=0, c1=2, r2=0, c2=4, bridges=(), active_cube=0)  # cube on '-'
         self.assertEqual(step_cost(stage, cur, Action.RIGHT, nxt), COST_NORMAL)
+
+    def test_solvers_preserve_existing_tracing(self):
+        stage = load_stage(STAGES_DIR / "level_01_basic.json")
+        tracemalloc.start()
+        try:
+            for cls in (DFSSolver, UCSSolver):
+                res = cls(stage).solve()
+                self.assertTrue(res.found)
+                self.assertTrue(tracemalloc.is_tracing())  # not stopped by solver
+        finally:
+            tracemalloc.stop()
+
+    def test_solvers_clean_up_after_exception(self):
+        stage = load_stage(STAGES_DIR / "level_01_basic.json")
+        for cls in (DFSSolver, UCSSolver):
+            solver = cls(stage)
+            solver._search = lambda: (_ for _ in ()).throw(RuntimeError("boom"))
+            with self.assertRaises(RuntimeError):
+                solver.solve()
+            self.assertFalse(tracemalloc.is_tracing())  # tracer cleaned up
+            self.assertTrue(cls(stage).solve().found)    # next run is fine
 
 
 if __name__ == "__main__":
