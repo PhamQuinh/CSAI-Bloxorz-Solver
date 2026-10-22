@@ -7,5 +7,4 @@ class DFSSolver(BaseSolver):
     """Depth-First Search / Iterative Deepening Search solver."""
 
     def solve(self) -> SearchResult:
-        # TODO (TV2): Implement DFS/IDS with cycle detection
         raise NotImplementedError("DFSSolver will be implemented by TV2.")
