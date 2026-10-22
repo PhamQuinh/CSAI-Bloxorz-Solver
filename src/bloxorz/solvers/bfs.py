@@ -2,26 +2,35 @@
 Implemented by TV1 (Leader) - System Architect.
 Guarantees finding the optimal (shortest path) solution in unweighted state space.
 """
-import time
-import tracemalloc
 from collections import deque
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple, Optional, List
 
 from bloxorz.domain.state import State
 from bloxorz.domain.actions import Action
 from bloxorz.domain.rules import is_goal_state
 from bloxorz.engine.transitions import transition
+from bloxorz.metrics.measurement import measure_performance
 from bloxorz.solvers.base import BaseSolver, SearchResult
+
 
 class BFSSolver(BaseSolver):
     """Breadth-First Search solver using queue and hash-set for cycle detection."""
 
     def solve(self) -> SearchResult:
-        # Start measurements
-        tracemalloc.start()
-        start_time = time.perf_counter()
+        with measure_performance() as measured:
+            found, actions, expanded = self._search()
+            measured["expanded_nodes"] = expanded
 
-        # Initial state setup
+        return SearchResult(
+            found=found,
+            actions=actions,
+            solution_length=len(actions) if found else 0,
+            search_time=measured["search_time"],
+            peak_memory_mb=measured["peak_memory_mb"],
+            expanded_nodes=measured["expanded_nodes"]
+        )
+
+    def _search(self) -> Tuple[bool, List[Action], int]:
         sr, sc = self.stage.start_pos
         initial_state = State(
             r1=sr, c1=sc,
@@ -30,19 +39,8 @@ class BFSSolver(BaseSolver):
             active_cube=-1
         )
 
-        # Early goal check
         if is_goal_state(initial_state, self.stage):
-            elapsed = time.perf_counter() - start_time
-            _, peak_mem = tracemalloc.get_traced_memory()
-            tracemalloc.stop()
-            return SearchResult(
-                found=True,
-                actions=[],
-                solution_length=0,
-                search_time=elapsed,
-                peak_memory_mb=peak_mem / (1024 * 1024),
-                expanded_nodes=0
-            )
+            return True, [], 0
 
         queue = deque([initial_state])
         visited = {initial_state}
@@ -57,7 +55,6 @@ class BFSSolver(BaseSolver):
             expanded_nodes += 1
 
             for act in candidate_actions:
-                # If block is not split, don't attempt SWITCH_BLOCK
                 if act == Action.SWITCH_BLOCK and not current.is_split:
                     continue
 
@@ -75,19 +72,8 @@ class BFSSolver(BaseSolver):
             if goal_state is not None:
                 break
 
-        elapsed = time.perf_counter() - start_time
-        _, peak_mem = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
-
         if goal_state is None:
-            return SearchResult(
-                found=False,
-                actions=[],
-                solution_length=0,
-                search_time=elapsed,
-                peak_memory_mb=peak_mem / (1024 * 1024),
-                expanded_nodes=expanded_nodes
-            )
+            return False, [], expanded_nodes
 
         # Reconstruct path
         path = []
@@ -98,11 +84,4 @@ class BFSSolver(BaseSolver):
             curr = prev_state
         path.reverse()
 
-        return SearchResult(
-            found=True,
-            actions=path,
-            solution_length=len(path),
-            search_time=elapsed,
-            peak_memory_mb=peak_mem / (1024 * 1024),
-            expanded_nodes=expanded_nodes
-        )
+        return True, path, expanded_nodes

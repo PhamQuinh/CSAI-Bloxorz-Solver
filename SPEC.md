@@ -213,18 +213,19 @@ SPLIT_COST = 3          # Thao tác khi ở trạng thái split
 
 ### 6.3 `src/solvers/heuristics.py` — Heuristic cho A\*:
 ```python
-def manhattan_half(state, goal_pos) -> float:
+def manhattan_half(state, stage) -> float:
     """
-    h(n) = (|r - r_goal| + |c - c_goal|) / 2
-    Admissible: mỗi bước di chuyển khối lăn được tối đa 2 ô
-    → /2 luôn là cận dưới (lower bound) hợp lệ
+    Cận dưới chi phí còn lại của step_cost, có tính ô tách.
+    Không teleport: c_min * max(khoảng cách tâm / 2, số nước để ghép).
+    Có teleport: lấy min với đường qua từng ô T rồi từ chỗ rơi tới lỗ.
+    Một nước T có thể giảm h nhiều hơn chi phí nước đó, nên không
+    kết luận consistent; A* mở lại node khi g nhỏ hơn.
     """
 
-def manhattan_half_with_orientation_penalty(state, goal_pos) -> float:
+def manhattan_half_with_orientation_penalty(state, stage) -> float:
     """
-    h(n) = manhattan_half + (1 nếu không STANDING, else 0)
-    Vì phải đứng thẳng mới vào được đích → thêm 1 bước tối thiểu
-    Vẫn Admissible & Consistent
+    h1 cộng thêm c_min khi khối chưa đứng nguyên.
+    Phần cộng thêm có thể vượt chi phí còn lại. A* không dùng hàm này.
     """
 ```
 

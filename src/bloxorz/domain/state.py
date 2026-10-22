@@ -24,7 +24,7 @@ class State:
 
     @property
     def is_standing(self) -> bool:
-        return self.r1 == self.r2 and self.c1 == self.c2
+        return (not self.is_split) and (self.r1 == self.r2) and (self.c1 == self.c2)
 
     @property
     def is_split(self) -> bool:
@@ -41,5 +41,7 @@ class State:
     def cells(self) -> Tuple[Tuple[int, int], ...]:
         """Return distinct cells occupied by the block."""
         if self.is_standing:
+            return ((self.r1, self.c1),)
+        if self.r1 == self.r2 and self.c1 == self.c2:
             return ((self.r1, self.c1),)
         return ((self.r1, self.c1), (self.r2, self.c2))
