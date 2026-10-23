@@ -168,7 +168,7 @@ Python API. Không nên port các thuật toán Python sang JavaScript/Java vì 
 Có thể chạy cả frontend và Python API bằng một lệnh:
 
 ```powershell
-cd "D:\Kì 1 năm 3\CSAI\CSAI-Bloxorz-Solver"
+cd path/to/CSAI-Bloxorz-Solver
 $env:PYTHONPATH = "src"
 python -m bloxorz.main
 ```

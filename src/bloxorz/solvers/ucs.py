@@ -86,4 +86,3 @@ class UCSSolver(BaseSolver):
             curr = prev_state
         path.reverse()
         return True, path, expanded_nodes
-        return True, path, expanded_nodes
