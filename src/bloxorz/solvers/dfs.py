@@ -79,5 +79,4 @@ class DFSSolver(BaseSolver):
             path.append(act)
             curr = prev_state
         path.reverse()
-
         return True, path, expanded_nodes
