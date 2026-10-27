@@ -45,6 +45,14 @@ màn, kiểm tra lời giải, tính chi phí, ghi CSV và vẽ biểu đồ n�
 Bộ nhớ là cấp phát Python được tracemalloc theo dõi, tính bằng **MiB**, không
 phải toàn bộ RAM của tiến trình. Thời gian và bộ nhớ có thể dao động giữa các lần chạy.
 
+Trước mỗi lượt A*, benchmark xóa bộ nhớ đệm heuristic bằng
+`_landing_lower_bounds.cache_clear()` trước khi gọi `.solve()`. Nhờ đó, mỗi lượt
+đều tính lại dữ liệu qua các ô tách khối trong phạm vi đo, bao gồm thời gian
+tính toán và bộ nhớ cấp phát cho dữ liệu này. Quy tắc áp dụng trong benchmark;
+các lần gọi solver trực tiếp vẫn có thể dùng lại bộ nhớ đệm. Kết quả đo trước
+thay đổi này cần được đo lại bằng lệnh benchmark, không dùng
+`--regenerate-existing` để thay thế việc đo lại.
+
 Mỗi lời giải phải phát lại hợp lệ từ vị trí xuất phát với cấu hình cầu ban đầu,
 `active_cube=-1`, và kết thúc bằng khối đứng trên đích. Trạng thái gồm vị trí,
 hướng khối, trạng thái cầu và khối con đang điều khiển khi tách. Mười JSON dùng
