@@ -116,6 +116,39 @@ class TestSummaries(unittest.TestCase):
 
 
 class TestRunner(unittest.TestCase):
+    def test_each_astar_run_rebuilds_a_previously_warm_cache(self):
+        cache = benchmark._landing_lower_bounds
+        self.addCleanup(cache.cache_clear)
+        stage = load_stage(STAGES_DIR / "level_08_split_basic.json")
+        benchmark.AStarSolver(stage).solve()
+        self.assertGreater(cache.cache_info().currsize, 0)
+        original_search = benchmark.AStarSolver._search
+        cache_sizes_at_start = []
+
+        def search(solver):
+            cache_sizes_at_start.append(cache.cache_info().currsize)
+            return original_search(solver)
+
+        with patch.object(benchmark.AStarSolver, "_search", search):
+            for _ in range(2):
+                row = benchmark._run_once(stage, benchmark.AStarSolver, raw_row())
+                self.assertEqual(row["Trạng thái"], "Thành công")
+                self.assertGreater(cache.cache_info().currsize, 0)
+                self.assertEqual(cache.cache_info().misses, 1)
+        self.assertEqual(cache_sizes_at_start, [0, 0])
+
+    def test_other_solvers_do_not_clear_the_heuristic_cache(self):
+        cache = benchmark._landing_lower_bounds
+        self.addCleanup(cache.cache_clear)
+        stage = load_stage(STAGES_DIR / "level_08_split_basic.json")
+        benchmark.AStarSolver(stage).solve()
+        before = cache.cache_info()
+        self.assertGreater(before.currsize, 0)
+        for solver_type in (benchmark.BFSSolver, benchmark.DFSSolver, benchmark.UCSSolver):
+            row = benchmark._run_once(stage, solver_type, raw_row())
+            self.assertEqual(row["Trạng thái"], "Thành công")
+            self.assertEqual(cache.cache_info(), before)
+
     def setUp(self):
         self.folder = tempfile.TemporaryDirectory()
         self.addCleanup(self.folder.cleanup)

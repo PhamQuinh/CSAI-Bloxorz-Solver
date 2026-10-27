@@ -1,6 +1,6 @@
 {
   "status": "Thành công",
-  "started_at": "2026-10-21T14:32:52.095344+00:00",
+  "started_at": "2026-10-27T16:00:46.912012+00:00",
   "python_version": "3.14.0",
   "python_executable": "D:\\CSAI-Bloxorz-Solver\\.venv\\Scripts\\python.exe",
   "platform": "Windows-11-10.0.26300-SP0",
@@ -26,9 +26,11 @@
     "level_10_split_complex.json"
   ],
   "stages_dir": "D:\\CSAI-Bloxorz-Solver\\stages",
-  "measurement_method": "Lấy trực tiếp SearchResult do measure_performance của từng bộ giải đo: thời gian bằng perf_counter (giây); bộ nhớ đỉnh là lượng cấp phát Python được tracemalloc theo dõi, chia cho 1024**2 (MiB). Phạm vi đo gồm tìm kiếm và dựng lại đường đi. Chạy tuần tự, khởi tạo bộ giải mới cho mỗi lần chạy, không có lượt chạy khởi động.",
+  "measurement_method": "Lấy trực tiếp SearchResult do measure_performance của từng bộ giải đo: thời gian bằng perf_counter (giây); bộ nhớ đỉnh là lượng cấp phát Python được tracemalloc theo dõi, chia cho 1024**2 (MiB). Phạm vi đo gồm tìm kiếm và dựng lại đường đi. Chạy tuần tự, khởi tạo bộ giải mới cho mỗi lần chạy, không có lượt chạy khởi động. Xóa bộ nhớ đệm heuristic trước mỗi lượt A* và trước khi bắt đầu đo; tính lại dữ liệu heuristic trong phạm vi đo.",
   "summary_method": "Lấy trung vị thời gian và bộ nhớ của các lần chạy thành công, đã kiểm tra lời giải bằng cách phát lại hành động. Kết quả tìm thấy lời giải, số nút mở rộng, độ dài lời giải, chi phí đường đi và số lần lăn phải ổn định giữa các lần chạy; mọi khác biệt đều được báo lỗi, không lấy trung bình.",
   "solution_length_convention": "Độ dài lời giải (số hành động) = len(actions), tính cả SWITCH_BLOCK. Số lần lăn chỉ đếm UP, DOWN, LEFT và RIGHT.",
+  "output_language": "vi-VN",
+  "schema_version": 2,
   "stages": [
     {
       "stage": "level_01_basic",
@@ -161,9 +163,7 @@
     "D:\\CSAI-Bloxorz-Solver\\results\\benchmark_expanded_nodes.png",
     "D:\\CSAI-Bloxorz-Solver\\results\\benchmark_solution_length.png"
   ],
-  "completed_at": "2026-10-21T14:32:59.361923+00:00",
+  "completed_at": "2026-10-27T16:00:54.174284+00:00",
   "raw_rows": 200,
-  "summary_rows": 40,
-  "output_language": "vi-VN",
-  "schema_version": 2
+  "summary_rows": 40
 }

@@ -21,6 +21,7 @@ from bloxorz.solvers.astar import AStarSolver
 from bloxorz.solvers.bfs import BFSSolver
 from bloxorz.solvers.costs import step_cost
 from bloxorz.solvers.dfs import DFSSolver
+from bloxorz.solvers.heuristics import _landing_lower_bounds
 from bloxorz.solvers.ucs import UCSSolver
 
 
@@ -52,7 +53,8 @@ METADATA_DESCRIPTIONS = {
         "thời gian bằng perf_counter (giây); bộ nhớ đỉnh là lượng cấp phát Python "
         "được tracemalloc theo dõi, chia cho 1024**2 (MiB). Phạm vi đo gồm tìm kiếm "
         "và dựng lại đường đi. Chạy tuần tự, khởi tạo bộ giải mới cho mỗi lần chạy, "
-        "không có lượt chạy khởi động."
+        "không có lượt chạy khởi động. Xóa bộ nhớ đệm heuristic trước mỗi lượt A* "
+        "và trước khi bắt đầu đo; tính lại dữ liệu heuristic trong phạm vi đo."
     ),
     "summary_method": (
         "Lấy trung vị thời gian và bộ nhớ của các lần chạy thành công, đã kiểm tra "
@@ -114,6 +116,9 @@ def _error_text(exc):
 def _run_once(stage, solver_type, row):
     # Construction, validation, and I/O are deliberately outside .solve().
     try:
+        if solver_type is AStarSolver:
+            # Measure each solve from an empty heuristic cache, including preprocessing.
+            _landing_lower_bounds.cache_clear()
         result = solver_type(stage).solve()
     except Exception as exc:
         row.update({"Trạng thái": "Lỗi thực thi", "Lỗi": _error_text(exc)})
