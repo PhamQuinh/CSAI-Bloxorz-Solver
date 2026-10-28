@@ -1,4 +1,4 @@
-"""Tạo lại bốn biểu đồ báo cáo từ CSV tổng hợp bằng tiếng Việt."""
+"""Tạo lại năm biểu đồ báo cáo từ CSV tổng hợp bằng tiếng Việt."""
 import argparse
 import csv
 import math
@@ -15,6 +15,7 @@ METRICS = {
     "Bộ nhớ đỉnh (MiB)": ("Bộ nhớ đỉnh được tracemalloc theo dõi", "MiB", "benchmark_peak_memory_mb.png"),
     "Số nút mở rộng": ("Số nút mở rộng", "Số nút mở rộng", "benchmark_expanded_nodes.png"),
     "Độ dài lời giải (số hành động)": ("Độ dài lời giải (số hành động)", "Số hành động", "benchmark_solution_length.png"),
+    "Số lần lăn": ("Số lần lăn", "Số lần lăn", "benchmark_roll_count.png"),
 }
 
 
@@ -76,7 +77,7 @@ def metric_values(rows, algorithm, metric):
 
 
 def generate_report_plots(summary_path=RESULTS_DIR / "benchmark_summary.csv", output_dir=None):
-    """Save four headless PNGs in numeric stage order and return their paths."""
+    """Save five headless PNGs in numeric stage order and return their paths."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -118,8 +119,10 @@ def _save_plots(plt, rows, output_dir):
                 note += " Số liệu là trung vị các lần chạy thành công."
             elif metric == "Số nút mở rộng":
                 note += " Đếm số lượt mở rộng; một trạng thái có thể được mở rộng lại."
-            else:
+            elif metric == "Độ dài lời giải (số hành động)":
                 note += " Độ dài lời giải tính cả SWITCH_BLOCK."
+            else:
+                note += " Chỉ đếm UP, DOWN, LEFT và RIGHT; không tính SWITCH_BLOCK."
             note += "\nThứ tự màn chơi không biểu thị độ khó tăng dần."
             if unavailable:
                 note += "\nSố liệu thiếu hoặc không đạt yêu cầu (để trống trên biểu đồ):\n" + "\n".join(unavailable)

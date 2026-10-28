@@ -4,7 +4,7 @@ Chạy từ thư mục gốc bằng PowerShell và môi trường `.venv` (Pytho
 môi trường hiện tại dùng Python 3.14.0):
 
 ```powershell
-# Mặc định: 5 lần lặp, 200 dòng chi tiết, 40 dòng tổng hợp và 4 biểu đồ.
+# Mặc định: 5 lần lặp, 200 dòng chi tiết, 40 dòng tổng hợp và 5 biểu đồ.
 .\.venv\Scripts\python.exe -m bloxorz.experiments.benchmark
 
 # Chạy thử một lần cho mỗi cặp màn chơi/thuật toán.
@@ -28,7 +28,7 @@ cùng thư mục với CSV đầu vào. Thư mục màn chơi tùy chọn phải
 tệp được khai báo trong `STAGE_FILES`.
 
 `--regenerate-existing` đọc bộ CSV tiếng Việt hiện có, xuất lại cả hai CSV,
-metadata và bốn PNG ngay tại các tên tệp cũ. Lệnh giữ nguyên chuỗi số trong từng
+metadata và năm PNG (tạo thêm ảnh số lần lăn nếu chưa có). Lệnh giữ nguyên chuỗi số trong từng
 ô, đường đi, số lần lặp, thời điểm đo, môi trường, đường dẫn và mã hash; không
 chạy solver. Có thể dùng lặp lại mà không làm thay đổi số liệu. Tên tùy chọn cũ
 `--localize-existing` vẫn được chấp nhận như một bí danh của lệnh này; lệnh không
@@ -80,6 +80,7 @@ Tên tệp giữ nguyên để các lệnh và đường dẫn hoạt động �
 - `benchmark_peak_memory_mb.png`: bộ nhớ đỉnh.
 - `benchmark_expanded_nodes.png`: số nút mở rộng.
 - `benchmark_solution_length.png`: độ dài lời giải (số hành động).
+- `benchmark_roll_count.png`: số lần lăn, không tính SWITCH_BLOCK.
 
 CSV dùng **UTF-8 có BOM** để Excel nhận đúng dấu tiếng Việt. Ô số không chứa
 đơn vị; ô trống biểu thị thiếu dữ liệu. Giá trị tìm thấy lời giải là **Có/Không**.

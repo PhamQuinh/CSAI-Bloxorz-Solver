@@ -161,7 +161,8 @@
     "D:\\CSAI-Bloxorz-Solver\\results\\benchmark_search_time_s.png",
     "D:\\CSAI-Bloxorz-Solver\\results\\benchmark_peak_memory_mb.png",
     "D:\\CSAI-Bloxorz-Solver\\results\\benchmark_expanded_nodes.png",
-    "D:\\CSAI-Bloxorz-Solver\\results\\benchmark_solution_length.png"
+    "D:\\CSAI-Bloxorz-Solver\\results\\benchmark_solution_length.png",
+    "D:\\CSAI-Bloxorz-Solver\\results\\benchmark_roll_count.png"
   ],
   "completed_at": "2026-10-27T16:00:54.174284+00:00",
   "raw_rows": 200,
