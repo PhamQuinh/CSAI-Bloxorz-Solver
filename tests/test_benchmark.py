@@ -397,7 +397,7 @@ class TestReportData(unittest.TestCase):
     def test_headless_charts_are_saved_for_incomplete_data(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "summary.csv"
-            export_to_csv([benchmark.summarize_runs([raw_row()])], path)
+            export_to_csv([benchmark.summarize_runs([raw_row(roll_count=1)])], path)
             # Check rendered labels, footer, Unicode font coverage, and bounds.
             from matplotlib.figure import Figure
             from matplotlib.font_manager import FontProperties, findfont
@@ -408,6 +408,13 @@ class TestReportData(unittest.TestCase):
             def inspect_figure(fig, output, **kwargs):
                 fig.canvas.draw()
                 ax = fig.axes[0]
+                if ax.get_title() == "Số lần lăn":
+                    self.assertEqual(ax.lines[0].get_ydata()[0], 1)
+                    self.assertTrue(math.isnan(ax.lines[0].get_ydata()[1]))
+                    self.assertTrue(any("không tính SWITCH_BLOCK" in text.get_text()
+                                        for text in fig.texts))
+                    self.assertFalse(any("Độ dài lời giải tính cả" in text.get_text()
+                                         for text in fig.texts))
                 texts = [ax.title, ax.xaxis.label, ax.yaxis.label,
                          ax.get_legend().get_title(), *fig.texts]
                 characters = FT2Font(findfont(FontProperties(family="DejaVu Sans"))).get_charmap()
@@ -428,6 +435,9 @@ class TestReportData(unittest.TestCase):
             self.assertFalse(any("Glyph" in str(item.message) for item in caught))
             self.assertIn("Số nút mở rộng", labels)
             self.assertIn("Độ dài lời giải (số hành động)", labels)
+            self.assertIn("Số lần lăn", labels)
+            self.assertEqual(len(paths), 5)
+            self.assertIn("benchmark_roll_count.png", {p.name for p in paths})
             self.assertIn("Thuật toán", labels)
             self.assertTrue(any("tính cả SWITCH_BLOCK" in label for label in labels))
             self.assertTrue(any("Số liệu thiếu" in label for label in labels))

@@ -321,7 +321,7 @@ def regenerate_existing_results(results_dir=RESULTS_DIR):
         raise
     _atomic_json(metadata, metadata_path)
     print(f"Đã xuất lại {len(raw)} dòng chi tiết, {len(summary)} dòng tổng hợp "
-          f"và bốn biểu đồ bằng tiếng Việt: {results_dir.resolve()}")
+          f"và {len(charts)} biểu đồ bằng tiếng Việt: {results_dir.resolve()}")
     return old_status == "Thành công"
 
 
