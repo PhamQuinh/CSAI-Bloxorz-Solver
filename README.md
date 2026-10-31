@@ -43,7 +43,7 @@ bloxorz-project/
 ├── stages/                         # 10 màn chơi chuẩn format JSON
 ├── tests/                          # Bộ 55 Unit Tests tự động kiểm thử toàn diện
 ├── results/                        # Dữ liệu CSV kết quả thực nghiệm & biểu đồ
-├── docs/                           # Tài liệu kỹ thuật, báo cáo & phụ lục
+├── docs/                           # Báo cáo kỹ thuật Report.pdf & phụ lục
 ├── requirements.txt                # Thư viện phụ thuộc
 └── README.md                       # Hướng dẫn cài đặt và sử dụng
 ```
@@ -104,7 +104,8 @@ python -m unittest discover tests
 
 ## 📚 Nguồn Tham khảo (Citations)
 
-1. **Coolmath Games:** [Bloxorz Original Flash Game](https://www.coolmathgames.com/0-bloxorz) — Luật chơi và thiết kế màn chơi gốc.
-2. **tkoz0/bloxorz-solver:** [Dataset & Ground Truth Solutions](https://github.com/tkoz0/bloxorz-solver) — Bộ dữ liệu bản đồ mẫu và nghiệm tối ưu.
-3. **binary-signal/bloxorz-game-clone:** [WebGL 3D Engine](https://github.com/binary-signal/bloxorz-game-clone) — Khung nền tảng WebGL 3D, camera và shader.
-4. **Stuart Russell & Peter Norvig:** *Artificial Intelligence: A Modern Approach (4th Edition)* — Lý thuyết nền tảng về các thuật toán tìm kiếm trong không gian trạng thái.
+1. **Coolmath Games:** [Bloxorz Original Flash Game](https://www.coolmathgames.com/0-bloxorz) — Trò chơi Bloxorz gốc, luật chơi và thiết kế màn chơi.
+2. **tkoz0/bloxorz-solver:** [Dataset & Ground Truth Solutions](https://github.com/tkoz0/bloxorz-solver) — Nguồn bộ dữ liệu 10 bản đồ và nghiệm tối ưu đối chiếu (Ground Truth).
+3. **dpquoc/bloxorz:** [dpquoc/bloxorz](https://github.com/dpquoc/bloxorz) — Tham khảo cơ chế phân tách và tự động sáp nhập khối lập phương (Split & Auto-merge).
+4. **binary-signal / chaitanya100100:** [bloxorz-game-clone](https://github.com/binary-signal/bloxorz-game-clone) — Khung nền tảng giao diện 3D WebGL, hệ thống camera và hoạt ảnh lăn khối.
+5. **Stuart Russell & Peter Norvig:** *Artificial Intelligence: A Modern Approach (4th Edition)* — Giáo trình nền tảng về các thuật toán tìm kiếm trong không gian trạng thái.
